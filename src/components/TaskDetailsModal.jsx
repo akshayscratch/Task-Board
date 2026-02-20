@@ -73,7 +73,7 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value)}
-                                className="bg-transparent border-none text-sm font-black text-white focus:outline-none uppercase tracking-widest cursor-pointer hover:text-primary transition-colors"
+                                className="bg-[#1e293b] border-2 border-white/5 rounded-lg px-3 py-1 text-sm font-black text-white focus:outline-none focus:border-primary/50 uppercase tracking-widest cursor-pointer hover:text-primary transition-colors"
                             >
                                 <option value="To Do">To Do</option>
                                 <option value="In Progress">In Progress</option>
@@ -92,20 +92,20 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
                                 type="text"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                className="w-full bg-transparent text-3xl font-black text-white placeholder-white/20 focus:outline-none leading-tight"
+                                className="w-full bg-transparent text-3xl font-black text-white placeholder-white/20 focus:outline-none leading-tight border-b border-transparent focus:border-white/10"
                                 placeholder="Task Title"
                             />
                         </div>
 
                         <div className="grid grid-cols-2 gap-8">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <User size={12} strokeWidth={3} /> Assignee
+                                <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
+                                    <User size={12} strokeWidth={3} className="text-primary" /> Assignee
                                 </label>
                                 <select
                                     value={assignedTo}
                                     onChange={(e) => setAssignedTo(e.target.value)}
-                                    className="w-full glass-input text-sm font-bold text-white cursor-pointer"
+                                    className="w-full glass-input text-sm font-bold text-white cursor-pointer bg-surface/60"
                                 >
                                     {users.map(u => (
                                         <option key={u.email} value={u.email}>{u.name || u.email}</option>
@@ -115,13 +115,13 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <BarChart3 size={12} strokeWidth={3} /> Priority
+                                <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
+                                    <BarChart3 size={12} strokeWidth={3} className="text-primary" /> Priority
                                 </label>
                                 <select
                                     value={priority}
                                     onChange={(e) => setPriority(e.target.value)}
-                                    className="w-full glass-input text-sm font-bold text-white cursor-pointer"
+                                    className="w-full glass-input text-sm font-bold text-white cursor-pointer bg-surface/60"
                                 >
                                     <option value="Low">Low</option>
                                     <option value="Medium">Medium</option>
@@ -130,21 +130,21 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <Calendar size={12} strokeWidth={3} /> Due Date
+                                <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
+                                    <Calendar size={12} strokeWidth={3} className="text-primary" /> Due Date
                                 </label>
                                 <input
                                     type="date"
                                     value={dueDate}
                                     onChange={(e) => setDueDate(e.target.value)}
-                                    className="w-full glass-input text-sm font-bold text-white cursor-pointer"
+                                    className="w-full glass-input text-sm font-bold text-white cursor-pointer bg-surface/60"
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                                <AlignLeft size={14} strokeWidth={3} /> Description
+                            <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
+                                <AlignLeft size={14} strokeWidth={3} className="text-primary" /> Description
                             </label>
                             <textarea
                                 value={description}

@@ -5,6 +5,7 @@ import Login from './components/Login'
 import Dashboard from './components/Dashboard'
 import TaskBoard from './components/TaskBoard'
 import SideBar from './components/SideBar'
+import Timeline from './components/Timeline'
 
 function ProtectedRoute({ session }) {
   if (!session) {
@@ -14,9 +15,11 @@ function ProtectedRoute({ session }) {
 }
 
 function Layout() {
+  const [isCollapsed, setIsCollapsed] = useState(false)
+
   return (
     <div className="flex h-screen bg-background text-text overflow-hidden">
-      <SideBar />
+      <SideBar isCollapsed={isCollapsed} onToggle={() => setIsCollapsed(!isCollapsed)} />
       <main className="flex-1 overflow-auto p-8 relative">
         <Outlet />
       </main>
@@ -79,6 +82,7 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/board" element={<TaskBoard />} />
+            <Route path="/timeline" element={<Timeline />} />
           </Route>
         </Route>
       </Routes>

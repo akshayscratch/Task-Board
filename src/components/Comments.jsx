@@ -7,10 +7,12 @@ export default function Comments({ taskId }) {
     const [newComment, setNewComment] = useState('')
     const [loading, setLoading] = useState(false)
     const [currentUser, setCurrentUser] = useState(null)
+    const [users, setUsers] = useState([])
     const commentsEndRef = useRef(null)
 
     useEffect(() => {
         supabase.auth.getUser().then(({ data: { user } }) => setCurrentUser(user))
+        fetchUsers()
         fetchComments()
 
         const channel = supabase
@@ -24,6 +26,11 @@ export default function Comments({ taskId }) {
             supabase.removeChannel(channel)
         }
     }, [taskId])
+
+    const fetchUsers = async () => {
+        const { data } = await supabase.from('users').select('email, name')
+        if (data) setUsers(data)
+    }
 
     useEffect(() => {
         scrollToBottom()
@@ -40,8 +47,16 @@ export default function Comments({ taskId }) {
             .eq('task_id', taskId)
             .order('created_at', { ascending: true })
 
-        if (error) console.error('Error fetching comments:', error)
-        else setComments(data || [])
+        if (error) {
+            console.error('Error fetching comments:', error)
+        } else {
+            setComments(data || [])
+        }
+    }
+
+    const getUserName = (email) => {
+        const user = users.find(u => u.email === email)
+        return user?.name || email.split('@')[0]
     }
 
     const handleSubmit = async (e) => {
@@ -74,12 +89,16 @@ export default function Comments({ taskId }) {
                 {comments.map((comment) => (
                     <div key={comment.id} className={`flex gap-4 ${comment.user_id === currentUser?.email ? 'flex-row-reverse' : ''}`}>
                         <div className={`w-9 h-9 rounded-2xl flex items-center justify-center shrink-0 shadow-lg border border-white/10 ${comment.user_id === currentUser?.email ? 'bg-primary' : 'bg-surface'}`}>
-                            <span className="text-xs text-white font-black">{comment.user_id.charAt(0).toUpperCase()}</span>
+                            <span className="text-xs text-white font-black">{getUserName(comment.user_id).charAt(0).toUpperCase()}</span>
                         </div>
                         <div className={`max-w-[85%] flex flex-col ${comment.user_id === currentUser?.email ? 'items-end' : 'items-start'}`}>
-                            <div className="flex items-center gap-3 mb-2 px-1">
-                                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{comment.user_id.split('@')[0]}</span>
-                                <span className="text-[10px] text-white/20 font-bold">{new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            <div className="flex items-center gap-2 mb-1.5">
+                                <span className="text-xs font-black text-primary uppercase tracking-tighter">
+                                    {getUserName(comment.user_id)}
+                                </span>
+                                <span className="text-[10px] font-bold text-text-muted opacity-40">
+                                    {new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
                             </div>
                             <div className={`rounded-3xl px-5 py-3.5 text-sm leading-relaxed shadow-xl ${comment.user_id === currentUser?.email
                                 ? 'bg-primary text-white rounded-tr-none'

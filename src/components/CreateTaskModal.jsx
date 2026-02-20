@@ -77,8 +77,8 @@ export default function CreateTaskModal({ onClose, onTaskCreated }) {
 
                 <form onSubmit={handleSubmit} className="p-8 space-y-8">
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2 px-1">
-                            <Target size={12} strokeWidth={3} /> Task Title
+                        <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2 px-1">
+                            <Target size={12} strokeWidth={3} className="text-primary" /> Task Title
                         </label>
                         <input
                             type="text"
@@ -92,13 +92,13 @@ export default function CreateTaskModal({ onClose, onTaskCreated }) {
 
                     <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2 px-1">
-                                <Users size={12} strokeWidth={3} /> Assign To
+                            <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2 px-1">
+                                <Users size={12} strokeWidth={3} className="text-primary" /> Assign To
                             </label>
                             <select
                                 value={assignedTo}
                                 onChange={(e) => setAssignedTo(e.target.value)}
-                                className="w-full glass-input text-sm font-bold text-white cursor-pointer"
+                                className="w-full glass-input text-sm font-bold text-white cursor-pointer bg-surface/60"
                             >
                                 {users.map(u => (
                                     <option key={u.email} value={u.email}>{u.name || u.email}</option>
@@ -108,13 +108,13 @@ export default function CreateTaskModal({ onClose, onTaskCreated }) {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2 px-1">
-                                <BarChart3 size={12} strokeWidth={3} /> Priority
+                            <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2 px-1">
+                                <BarChart3 size={12} strokeWidth={3} className="text-primary" /> Priority
                             </label>
                             <select
                                 value={priority}
                                 onChange={(e) => setPriority(e.target.value)}
-                                className="w-full glass-input text-sm font-bold text-white cursor-pointer"
+                                className="w-full glass-input text-sm font-bold text-white cursor-pointer bg-surface/60"
                             >
                                 <option value="Low">Low</option>
                                 <option value="Medium">Medium</option>
@@ -125,21 +125,21 @@ export default function CreateTaskModal({ onClose, onTaskCreated }) {
 
                     <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2 px-1">
-                                <Calendar size={12} strokeWidth={3} /> Due Date
+                            <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2 px-1">
+                                <Calendar size={12} strokeWidth={3} className="text-primary" /> Due Date
                             </label>
                             <input
                                 type="date"
                                 value={dueDate}
                                 onChange={(e) => setDueDate(e.target.value)}
-                                className="w-full glass-input text-sm font-bold text-white cursor-pointer"
+                                className="w-full glass-input text-sm font-bold text-white cursor-pointer bg-surface/60"
                             />
                         </div>
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2 px-1">
-                            <AlignLeft size={12} strokeWidth={3} /> Description
+                        <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2 px-1">
+                            <AlignLeft size={12} strokeWidth={3} className="text-primary" /> Description
                         </label>
                         <textarea
                             value={description}

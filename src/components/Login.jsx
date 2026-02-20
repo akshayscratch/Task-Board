@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { useNavigate } from 'react-router-dom'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, ShieldCheck } from 'lucide-react'
 
 export default function Login() {
     const [email, setEmail] = useState('')
@@ -60,82 +60,112 @@ export default function Login() {
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-background text-text">
-            <div className="w-full max-w-md p-8 space-y-6 bg-surface rounded-lg shadow-xl border border-gray-800">
-                <h2 className="text-3xl font-bold text-center text-primary">Task Platform</h2>
-                <p className="text-center text-text-muted">
-                    {isSignUp ? 'Create a new account' : 'Sign in to your account'}
-                </p>
+        <div className="flex min-h-screen items-center justify-center relative overflow-hidden bg-[--color-background]">
+            {/* Background Aesthetic Elements */}
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] animate-pulse"></div>
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
 
-                {error && (
-                    <div className="p-3 text-sm text-red-500 bg-red-500/10 border border-red-500/20 rounded">
-                        {error}
-                    </div>
-                )}
+            <div className="w-full max-w-md p-1 group relative z-10 mx-4">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-accent rounded-3xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
 
-                {message && (
-                    <div className="p-3 text-sm text-green-500 bg-green-500/10 border border-green-500/20 rounded">
-                        {message}
-                    </div>
-                )}
-
-                <form onSubmit={handleAuth} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Email</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-4 py-2 bg-background border border-gray-700 rounded focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                            placeholder="user@example.com"
-                            required
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium mb-1">Password</label>
-                        <div className="relative">
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full px-4 py-2 bg-background border border-gray-700 rounded focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all pr-10"
-                                placeholder="••••••••"
-                                required
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
-                            >
-                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                            </button>
+                <div className="glass-card !bg-surface/60 backdrop-blur-2xl p-10 relative flex flex-col items-center">
+                    <div className="mb-8 relative">
+                        <div className="absolute -inset-4 bg-primary/20 rounded-full blur-xl animate-pulse"></div>
+                        <div className="w-20 h-20 bg-gradient-to-tr from-primary/20 to-accent/20 rounded-2xl border border-white/10 flex items-center justify-center shadow-2xl relative z-10">
+                            <img src="/app_icon.svg" alt="Taskboard" className="w-12 h-12" />
                         </div>
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full py-2 px-4 bg-primary hover:bg-indigo-700 text-white font-semibold rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {loading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Sign In')}
-                    </button>
-                </form>
+                    <div className="text-center mb-10">
+                        <h2 className="text-4xl font-black text-gradient-primary tracking-tighter mb-2">Task Board</h2>
+                        <p className="text-text-muted font-bold uppercase tracking-[0.2em] text-[10px]">
+                            {isSignUp ? 'Create a new account' : 'Sign in to your account'}
+                        </p>
+                    </div>
 
-                <div className="text-center text-sm text-text-muted mt-4">
-                    <p>
-                        {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                    {error && (
+                        <div className="w-full mb-6 p-4 text-xs font-bold text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 animate-shake">
+                            <ShieldCheck size={16} /> {error}
+                        </div>
+                    )}
+
+                    {message && (
+                        <div className="w-full mb-6 p-4 text-xs font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-400/20 rounded-xl flex items-center gap-3">
+                            <ShieldCheck size={16} /> {message}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleAuth} className="w-full space-y-5">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Email</label>
+                            <div className="relative group/input">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within/input:text-primary transition-colors" size={18} />
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="glass-input w-full pl-12 !py-3 font-medium placeholder:text-white/10"
+                                    placeholder="user@example.com"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Password</label>
+                            <div className="relative group/input">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted group-focus-within/input:text-primary transition-colors" size={18} />
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="glass-input w-full pl-12 pr-12 !py-3 font-medium placeholder:text-white/10"
+                                    placeholder="••••••••"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-white transition-colors"
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
+                        </div>
+
                         <button
-                            onClick={() => {
-                                setIsSignUp(!isSignUp)
-                                setError(null)
-                                setMessage(null)
-                            }}
-                            className="ml-2 text-primary hover:underline font-semibold"
+                            type="submit"
+                            disabled={loading}
+                            className="btn-primary w-full !py-4 shadow-xl shadow-primary/20 relative overflow-hidden group/btn"
                         >
-                            {isSignUp ? 'Sign In' : 'Sign Up'}
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                                {loading ? (
+                                    <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                                ) : (
+                                    <>
+                                        {isSignUp ? 'Sign Up' : 'Sign In'}
+                                    </>
+                                )}
+                            </span>
                         </button>
-                    </p>
+                    </form>
+
+                    <div className="mt-10 text-center">
+                        <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest">
+                            {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                            <button
+                                onClick={() => {
+                                    setIsSignUp(!isSignUp)
+                                    setError(null)
+                                    setMessage(null)
+                                }}
+                                className="ml-2 text-primary hover:text-accent font-black transition-colors"
+                            >
+                                {isSignUp ? 'Sign In' : 'Sign Up'}
+                            </button>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
