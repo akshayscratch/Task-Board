@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
-import { X, Trash2, Calendar, User, AlignLeft, BarChart3, Clock, CheckCircle2, ChevronRight, ChevronLeft, Settings2 } from 'lucide-react'
+import { X, Trash2, Calendar, User, AlignLeft, BarChart3, Clock, CheckCircle2, ChevronRight, ChevronLeft, Settings2, ShieldCheck, Edit2 } from 'lucide-react'
 import Comments from './Comments'
 
 export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskDeleted }) {
@@ -13,6 +13,8 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
     const [dueDate, setDueDate] = useState(task.due_date || '')
     const [loading, setLoading] = useState(false)
     const [showDetails, setShowDetails] = useState(false) // Default to hidden
+    const [isEditingTitle, setIsEditingTitle] = useState(false)
+    const [isEditingDescription, setIsEditingDescription] = useState(false)
 
     useEffect(() => {
         fetchUsers()
@@ -37,6 +39,8 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
         } else {
             onTaskUpdated()
             setShowDetails(false) // Collapse after saving
+            setIsEditingTitle(false)
+            setIsEditingDescription(false)
         }
         setLoading(false)
     }
@@ -87,14 +91,35 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
 
                     {/* Scrollable Content Area */}
                     <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar min-w-[400px]">
-                        <div>
-                            <input
-                                type="text"
-                                value={title}
-                                onChange={(e) => setTitle(e.target.value)}
-                                className="w-full bg-transparent text-3xl font-black text-white placeholder-white/20 focus:outline-none leading-tight border-b border-transparent focus:border-white/10"
-                                placeholder="Task Title"
-                            />
+                        <div className="group relative">
+                            <label className="text-[10px] font-black text-primary uppercase tracking-[0.3em] flex items-center justify-between mb-2">
+                                <span className="flex items-center gap-2">
+                                    <ShieldCheck size={14} className="animate-pulse" /> Task Identity
+                                </span>
+                                <button
+                                    onClick={() => setIsEditingTitle(!isEditingTitle)}
+                                    className="p-1 hover:bg-white/5 rounded-lg text-text-muted hover:text-primary transition-all"
+                                    title="Edit Title"
+                                >
+                                    <Edit2 size={12} />
+                                </button>
+                            </label>
+
+                            {isEditingTitle ? (
+                                <input
+                                    type="text"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    onBlur={() => setIsEditingTitle(false)}
+                                    className="w-full bg-transparent text-4xl font-black text-white placeholder-white/20 focus:outline-none leading-tight border-b border-white/5 focus:border-primary/30 transition-all pb-2"
+                                    placeholder="Task Title"
+                                    autoFocus
+                                />
+                            ) : (
+                                <h1 className="text-4xl font-black text-white leading-tight min-h-[50px] cursor-pointer hover:text-primary/90 transition-colors" onClick={() => setIsEditingTitle(true)}>
+                                    {title}
+                                </h1>
+                            )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-8">
@@ -143,15 +168,36 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
                         </div>
 
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
-                                <AlignLeft size={14} strokeWidth={3} className="text-primary" /> Description
+                            <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center justify-between">
+                                <span className="flex items-center gap-2">
+                                    <AlignLeft size={14} strokeWidth={3} className="text-primary" /> Description
+                                </span>
+                                <button
+                                    onClick={() => setIsEditingDescription(!isEditingDescription)}
+                                    className="p-1 hover:bg-white/5 rounded-lg text-text-muted hover:text-primary transition-all"
+                                    title="Edit Description"
+                                >
+                                    <Edit2 size={12} />
+                                </button>
                             </label>
-                            <textarea
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                className="w-full glass-input text-sm font-medium text-white leading-relaxed min-h-[180px] resize-none"
-                                placeholder="Add a more detailed description..."
-                            />
+
+                            {isEditingDescription ? (
+                                <textarea
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    onBlur={() => setIsEditingDescription(false)}
+                                    className="w-full glass-input text-sm font-medium text-white leading-relaxed min-h-[180px] resize-none focus:border-primary/30"
+                                    placeholder="Add a more detailed description..."
+                                    autoFocus
+                                />
+                            ) : (
+                                <div
+                                    className="text-sm font-medium text-white/70 leading-relaxed min-h-[100px] cursor-pointer hover:text-white transition-colors whitespace-pre-wrap"
+                                    onClick={() => setIsEditingDescription(true)}
+                                >
+                                    {description || <span className="text-white/20 italic">No description provided. Click to add details...</span>}
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -184,16 +230,29 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
                             >
                                 <Settings2 size={20} />
                             </button>
-                            <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.6)]"></div>
-                            <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Activity Feed</h3>
                         </div>
-                        <div className="flex items-center gap-2 text-text-muted text-xs font-bold truncate max-w-[200px] opacity-40 uppercase tracking-widest mr-4">
-                            {task.title}
+
+                        <div className="flex-1 flex flex-col mx-4 overflow-hidden">
+                            <div className="flex items-center gap-2 mb-0.5">
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.6)]"></div>
+                                <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Activity Feed</h3>
+                            </div>
+                            <h2
+                                className="text-sm font-black text-white uppercase tracking-wider truncate drop-shadow-[0_0_10px_rgba(59,130,246,0.3)] cursor-pointer hover:text-primary transition-colors"
+                                onClick={() => {
+                                    setShowDetails(true);
+                                    setIsEditingTitle(true);
+                                }}
+                            >
+                                {task.title}
+                            </h2>
                         </div>
-                        <button onClick={onClose} className="p-2 text-text-muted hover:text-white hover:bg-white/5 rounded-xl transition-all">
+
+                        <button onClick={onClose} className="p-2 text-text-muted hover:text-white hover:bg-white/5 rounded-xl transition-all shrink-0">
                             <X size={20} />
                         </button>
                     </div>
+
                     <div className="flex-1 overflow-hidden relative">
                         <Comments taskId={task.id} />
                     </div>
