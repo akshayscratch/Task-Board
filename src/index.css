@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #030712;
+  --color-surface: #111827;
+  --color-primary: #6366F1;
+  --color-primary-hover: #4F46E5;
+  --color-text: #F9FAFB;
+  --color-text-muted: #9CA3AF;
+  --color-accent: #10B981;
+  --color-accent-hover: #059669;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-[--color-background] text-[--color-text] antialiased selection:bg-primary/30;
+    background-image:
+      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.1) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-800 rounded-full transition-colors hover:bg-gray-700;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-surface/40 backdrop-blur-xl border border-white/5;
+  }
+
+  .glass-card {
+    @apply bg-surface/40 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl;
+  }
+
+  .glass-input {
+    @apply bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20;
+  }
+
+  .btn-primary {
+    @apply bg-primary hover:bg-primary-hover text-white font-semibold py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-primary/25 active:scale-[0.98];
+  }
+}
