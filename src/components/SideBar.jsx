@@ -35,15 +35,15 @@ export default function SideBar({ isCollapsed, onToggle }) {
     const navClass = ({ isActive }) =>
         `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
             ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]'
-            : 'text-text-muted hover:bg-white/5 hover:text-white'
+            : 'text-text-muted hover:bg-primary/5 hover:text-primary'
         } ${isCollapsed ? 'justify-center px-0' : ''}`
 
     return (
-        <div className={`glass border-r border-white/5 flex flex-col h-full transition-all duration-300 relative z-40 ${isCollapsed ? 'w-20' : 'w-72'}`}>
+        <div className={`glass border-r border-[#8CC63F]/10 flex flex-col h-full transition-all duration-300 relative z-40 ${isCollapsed ? 'w-20' : 'w-72'}`}>
             {/* Toggle Button */}
             <button
                 onClick={onToggle}
-                className="absolute -right-3 top-10 w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white border-2 border-[#020617] shadow-[0_0_15px_rgba(59,130,246,0.5)] z-50 hover:scale-110 transition-transform active:scale-95"
+                className="absolute -right-3 top-10 w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white border-2 border-[#E9F7EE] shadow-lg z-50 hover:scale-110 transition-transform active:scale-95"
             >
                 {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
             </button>
@@ -56,8 +56,8 @@ export default function SideBar({ isCollapsed, onToggle }) {
                         </div>
                         {!isCollapsed && (
                             <div className="animate-in fade-in slide-in-from-left-2 duration-300 whitespace-nowrap">
-                                <h1 className="text-xl font-bold text-white tracking-tight">TaskBoard</h1>
-                                <span className="text-[10px] text-primary font-bold uppercase tracking-widest">Workspace</span>
+                                <h1 className="text-xl font-bold text-[#1A2A24] tracking-tight">WorkMatrix</h1>
+                                <span className="text-[10px] text-primary font-black uppercase tracking-widest">Workspace</span>
                             </div>
                         )}
                     </div>
@@ -66,36 +66,36 @@ export default function SideBar({ isCollapsed, onToggle }) {
                 <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar overflow-x-hidden">
                     <div className="pb-4">
                         {!isCollapsed && (
-                            <p className="px-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2 animate-in fade-in duration-300 whitespace-nowrap">Main Menu</p>
+                            <p className="px-4 text-[11px] font-black text-[#1A2A24]/30 uppercase tracking-[0.2em] mb-4 animate-in fade-in duration-300 whitespace-nowrap">Explore</p>
                         )}
                         <NavLink to="/" className={navClass} title={isCollapsed ? "Dashboard" : ""}>
                             <LayoutDashboard size={20} className="group-hover:scale-110 transition-transform shrink-0" />
-                            {!isCollapsed && <span className="font-medium animate-in fade-in slide-in-from-left-2 duration-300 whitespace-nowrap">Dashboard</span>}
+                            {!isCollapsed && <span className="font-bold animate-in fade-in slide-in-from-left-2 duration-300 whitespace-nowrap">Dashboard</span>}
                         </NavLink>
                         <NavLink to="/board" className={navClass} title={isCollapsed ? "Task Board" : ""}>
                             <KanbanSquare size={20} className="group-hover:scale-110 transition-transform shrink-0" />
-                            {!isCollapsed && <span className="font-medium animate-in fade-in slide-in-from-left-2 duration-300 whitespace-nowrap">Task Board</span>}
+                            {!isCollapsed && <span className="font-bold animate-in fade-in slide-in-from-left-2 duration-300 whitespace-nowrap">Task Board</span>}
                         </NavLink>
                         <NavLink to="/timeline" className={navClass} title={isCollapsed ? "Timeline" : ""}>
                             <Clock size={20} className="group-hover:scale-110 transition-transform shrink-0" />
-                            {!isCollapsed && <span className="font-medium animate-in fade-in slide-in-from-left-2 duration-300 whitespace-nowrap">Timeline</span>}
+                            {!isCollapsed && <span className="font-bold animate-in fade-in slide-in-from-left-2 duration-300 whitespace-nowrap">Timeline</span>}
                         </NavLink>
                     </div>
                 </nav>
 
-                <div className={`p-4 bg-white/[0.02] border-t border-white/5 transition-all duration-300 ${isCollapsed ? 'px-2' : ''}`}>
+                <div className={`p-4 bg-white/30 border-t border-[#8CC63F]/10 transition-all duration-300 ${isCollapsed ? 'px-2' : ''}`}>
                     <button
                         onClick={() => setShowProfileSettings(true)}
-                        className={`w-full flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 rounded-2xl mb-3 transition-all group ${isCollapsed ? 'justify-center p-2' : ''}`}
+                        className={`w-full flex items-center gap-3 p-3 bg-white/40 hover:bg-white/60 rounded-2xl mb-3 transition-all group ${isCollapsed ? 'justify-center p-2' : ''}`}
                         title={isCollapsed ? "Profile Settings" : ""}
                     >
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-cyan-400 flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform shrink-0">
-                            <span className="text-white font-bold text-sm">{(userName || userEmail).charAt(0).toUpperCase()}</span>
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-[#3FA9F5] flex items-center justify-center border border-white/20 group-hover:scale-105 transition-transform shrink-0">
+                            <span className="text-white font-black text-sm">{(userName || userEmail).charAt(0).toUpperCase()}</span>
                         </div>
                         {!isCollapsed && (
                             <div className="flex-1 min-w-0 text-left animate-in fade-in slide-in-from-left-2 duration-300">
-                                <p className="text-sm font-semibold text-white truncate">{userName || userEmail.split('@')[0]}</p>
-                                <p className="text-[11px] text-text-muted truncate">{userEmail}</p>
+                                <p className="text-sm font-black text-[#1A2A24] truncate">{userName || userEmail.split('@')[0]}</p>
+                                <p className="text-[11px] text-text-muted font-bold truncate">{userEmail}</p>
                             </div>
                         )}
                         {!isCollapsed && (
@@ -104,10 +104,10 @@ export default function SideBar({ isCollapsed, onToggle }) {
                     </button>
                     <button
                         onClick={handleLogout}
-                        className={`w-full flex items-center justify-center gap-2 px-4 py-3 text-red-400 hover:bg-red-400/10 rounded-xl transition-all font-medium text-sm ${isCollapsed ? 'px-0' : ''}`}
+                        className={`w-full flex items-center justify-center gap-2 px-4 py-3 text-red-500 hover:bg-red-500/5 rounded-xl transition-all font-black uppercase tracking-widest text-[10px] ${isCollapsed ? 'px-0' : ''}`}
                         title={isCollapsed ? "Sign Out" : ""}
                     >
-                        <LogOut size={18} className="shrink-0" />
+                        <LogOut size={16} className="shrink-0" />
                         {!isCollapsed && <span className="animate-in fade-in slide-in-from-left-2 duration-300">Sign Out</span>}
                     </button>
                 </div>

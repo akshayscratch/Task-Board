@@ -17,8 +17,8 @@ export default function Comments({ taskId }) {
 
         const channel = supabase
             .channel(`comments:${taskId}`)
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments', filter: `task_id=eq.${taskId}` }, (payload) => {
-                setComments((prev) => [...prev, payload.new])
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'comments', filter: `task_id=eq.${taskId}` }, () => {
+                fetchComments() // Always fetch fresh to ensure joined Author data is present
             })
             .subscribe()
 
@@ -43,7 +43,7 @@ export default function Comments({ taskId }) {
     const fetchComments = async () => {
         const { data, error } = await supabase
             .from('comments')
-            .select('*')
+            .select('*') // Removed relational fetch to prevent DB crash
             .eq('task_id', taskId)
             .order('created_at', { ascending: true })
 
@@ -54,9 +54,9 @@ export default function Comments({ taskId }) {
         }
     }
 
-    const getUserName = (email) => {
-        const user = users.find(u => u.email === email)
-        return user?.name || email.split('@')[0]
+    const getUserName = (comment) => {
+        const matchedUser = users.find(u => u.email === comment.user_id)
+        return matchedUser?.name || comment.user_id.split('@')[0]
     }
 
     const handleSubmit = async (e) => {
@@ -79,6 +79,7 @@ export default function Comments({ taskId }) {
             alert('Failed to send comment')
         } else {
             setNewComment('')
+            // We removed `fetchComments()` here because the real-time listener handles fetching the new data.
         }
         setLoading(false)
     }
@@ -88,23 +89,23 @@ export default function Comments({ taskId }) {
             <div className="flex-1 overflow-y-auto space-y-6 mb-6 pr-4 custom-scrollbar">
                 {comments.map((comment) => (
                     <div key={comment.id} className={`flex gap-4 ${comment.user_id === currentUser?.email ? 'flex-row-reverse' : ''}`}>
-                        <div className={`w-9 h-9 rounded-2xl flex items-center justify-center shrink-0 shadow-lg border border-white/10 ${comment.user_id === currentUser?.email ? 'bg-primary' : 'bg-surface'}`}>
-                            <span className="text-xs text-white font-black">{getUserName(comment.user_id).charAt(0).toUpperCase()}</span>
+                        <div className={`w-9 h-9 rounded-2xl flex items-center justify-center shrink-0 shadow-sm border border-black/5 ${comment.user_id === currentUser?.email ? 'bg-primary' : 'bg-white'}`}>
+                            <span className={`text-xs font-black ${comment.user_id === currentUser?.email ? 'text-white' : 'text-[#1A2A24]'}`}>{getUserName(comment).charAt(0).toUpperCase()}</span>
                         </div>
                         <div className={`max-w-[85%] flex flex-col ${comment.user_id === currentUser?.email ? 'items-end' : 'items-start'}`}>
                             <div className="flex items-center gap-2 mb-1.5">
                                 <span className="text-xs font-black text-primary uppercase tracking-tighter">
-                                    {getUserName(comment.user_id)}
+                                    {getUserName(comment)}
                                 </span>
                                 <span className="text-[10px] font-bold text-text-muted opacity-40">
                                     {new Date(comment.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                             </div>
-                            <div className={`rounded-3xl px-5 py-3.5 text-sm leading-relaxed shadow-xl ${comment.user_id === currentUser?.email
+                            <div className={`rounded-3xl px-5 py-3.5 text-sm leading-relaxed shadow-sm ${comment.user_id === currentUser?.email
                                 ? 'bg-primary text-white rounded-tr-none'
-                                : 'bg-white/5 text-text border border-white/5 rounded-tl-none'
+                                : 'bg-white text-[#1A2A24] border border-black/5 rounded-tl-none'
                                 }`}>
-                                <p className="font-medium">{comment.comment}</p>
+                                <p className="font-semibold">{comment.comment}</p>
                             </div>
                         </div>
                     </div>

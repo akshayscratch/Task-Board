@@ -13,9 +13,15 @@ export default function Timeline() {
     }, [])
 
     const fetchTimelineTasks = async () => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        const userFilter = `created_by.eq.${user.email},assigned_to.eq.${user.email}`
+
         const { data, error } = await supabase
             .from('tasks')
-            .select('*, assigned_user:users!inner(name)')
+            .select('*, assigned_user:users(name)')
+            .or(userFilter)
             .not('due_date', 'is', null)
             .neq('status', 'Done')
             .order('due_date', { ascending: true })
@@ -26,6 +32,7 @@ export default function Timeline() {
             const { data: fallbackData } = await supabase
                 .from('tasks')
                 .select('*')
+                .or(userFilter)
                 .not('due_date', 'is', null)
                 .neq('status', 'Done')
                 .order('due_date', { ascending: true })
@@ -115,46 +122,46 @@ export default function Timeline() {
                                         <p className="text-xs font-black text-primary uppercase tracking-[0.2em]">
                                             {new Date(task.due_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                                         </p>
-                                        <p className="text-sm font-bold text-white/40 mt-1">
+                                        <p className="text-sm font-black text-[#1A2A24]/30 mt-1">
                                             {new Date(task.due_date).getFullYear()}
                                         </p>
                                     </div>
 
                                     {/* Task Card */}
-                                    <div className="flex-1 glass-card p-6 border-l-4 transition-all duration-300 hover:translate-x-2 relative group-hover:shadow-[0_0_30px_rgba(59,130,246,0.1)] cursor-pointer"
+                                    <div className="flex-1 bg-gradient-to-br from-white to-[#F1FBE3] p-6 border-l-[6px] rounded-2xl transition-all duration-300 hover:translate-x-2 relative hover:shadow-[0_20px_40px_rgba(140,198,63,0.15)] cursor-pointer group/card shadow-sm border border-[#8CC63F]/10"
                                         onClick={() => setSelectedTask(task)}
-                                        style={{ borderLeftColor: task.priority === 'High' ? '#ef4444' : task.priority === 'Medium' ? '#f59e0b' : '#10b981' }}>
+                                        style={{ borderLeftColor: task.priority === 'High' ? '#ef4444' : task.priority === 'Medium' ? '#f59e0b' : '#3fa9f5' }}>
                                         <div className="flex justify-between items-start mb-4">
                                             <div className="flex flex-wrap gap-2">
                                                 <div className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest border ${getPriorityColor(task.priority)}`}>
                                                     {task.priority} Priority
                                                 </div>
-                                                <div className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest border flex items-center gap-1.5 ${isOverdue ? 'text-white border-red-500 bg-red-600 shadow-[0_0_15px_rgba(239,68,68,0.4)]' :
-                                                    isDueToday ? 'text-black border-amber-500 bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.4)]' : 'text-white border-orange-500 bg-gradient-to-r from-orange-500 to-red-600 shadow-[0_0_15px_rgba(255,69,0,0.4)]'
+                                                <div className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest border flex items-center gap-1.5 ${isOverdue ? 'text-white border-red-500 bg-red-600' :
+                                                    isDueToday ? 'text-[#1A2A24] border-amber-500 bg-amber-500' : 'text-white border-[#3FA9F5] bg-[#3FA9F5]'
                                                     }`}>
-                                                    <AlertCircle size={10} className={isDueToday ? 'text-black' : 'text-white'} />
+                                                    <AlertCircle size={10} className={isDueToday ? 'text-[#1A2A24]' : 'text-white'} />
                                                     {isOverdue ? 'Overdue' : isDueToday ? 'Due Today' : `${daysLeft} Days Remaining`}
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-2 text-[10px] font-bold text-white/40 uppercase tracking-widest bg-white/5 px-2 py-1 rounded">
+                                            <div className="flex items-center gap-2 text-[10px] font-black text-[#1A2A24]/30 uppercase tracking-widest bg-black/5 px-2 py-1 rounded">
                                                 <Calendar size={10} />
                                                 {task.status}
                                             </div>
                                         </div>
 
-                                        <h3 className="text-lg font-bold text-white mb-2 group-hover:text-primary transition-colors">{task.title}</h3>
-                                        <p className="text-sm text-text-muted mb-6 line-clamp-2 leading-relaxed">{task.description || 'No description provided.'}</p>
+                                        <h3 className="text-lg font-black text-[#1A2A24] mb-2 group-hover/card:text-primary transition-colors">{task.title}</h3>
+                                        <p className="text-sm text-[#4B5563] mb-6 line-clamp-2 leading-relaxed font-medium">{task.description || 'No description provided.'}</p>
 
-                                        <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                                        <div className="flex items-center justify-between pt-4 border-t border-black/5">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-primary to-cyan-400 flex items-center justify-center text-[10px] text-white font-black shadow-lg">
+                                                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-primary to-[#3FA9F5] flex items-center justify-center text-[10px] text-white font-black shadow-sm">
                                                     {(task.assigned_user?.name || task.assigned_to).charAt(0).toUpperCase()}
                                                 </div>
-                                                <span className="text-xs font-black text-primary/80 uppercase tracking-tighter group-hover:text-primary transition-colors">
+                                                <span className="text-xs font-black text-[#1A2A24]/40 uppercase tracking-tighter group-hover/card:text-primary transition-colors">
                                                     {task.assigned_user?.name || task.assigned_to.split('@')[0]}
                                                 </span>
                                             </div>
-                                            <button className="text-white/20 group-hover:text-primary transition-colors">
+                                            <button className="text-[#1A2A24]/10 group-hover/card:text-primary transition-colors">
                                                 <ChevronRight size={18} />
                                             </button>
                                         </div>

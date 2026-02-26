@@ -1,26 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #0f172a;
-  --color-surface: #1e293b;
-  --color-primary: #3b82f6;
-  --color-primary-hover: #2563eb;
-  --color-text: #f8fafc;
-  --color-text-muted: #94a3b8;
-  --color-accent: #06b6d4;
-  --color-accent-hover: #0891b2;
+  --color-background: #F1FBE3;
+  --color-surface: #E9F7EE;
+  --color-primary: #8CC63F;
+  --color-primary-hover: #A6DB5A;
+  --color-text: #1A2A24;
+  --color-text-muted: #4B5563;
+  --color-accent: #3FA9F5;
+  --color-accent-hover: #29abe2;
 
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --shadow-glass: 0 8px 32px 0 rgba(26, 42, 36, 0.05);
 }
 
 @layer base {
   body {
-    @apply bg-[--color-background] text-[--color-text] antialiased selection:bg-primary/30;
+    @apply bg-[--color-background] text-[--color-text] antialiased selection:bg-primary/20;
     background:
-      linear-gradient(135deg, #0f172a 0%, #1e293b 100%),
-      radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.05) 0px, transparent 50%);
+      linear-gradient(135deg, #F1FBE3 0%, #E9F7EE 100%);
     background-attachment: fixed;
+    min-height: 100vh;
   }
 
   /* Custom scrollbar */
@@ -34,29 +35,29 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-gray-800 rounded-full transition-colors hover:bg-gray-700;
+    @apply bg-gray-200 rounded-full transition-colors hover:bg-gray-300;
   }
 }
 
 @layer components {
   .glass {
-    @apply bg-surface/40 backdrop-blur-xl border border-white/5;
+    @apply bg-white/60 backdrop-blur-xl border border-[#8CC63F]/10;
   }
 
   .glass-card {
-    @apply bg-surface/40 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl;
+    @apply bg-white/70 backdrop-blur-xl border border-[#8CC63F]/10 rounded-2xl shadow-glass;
   }
 
   .glass-input {
-    @apply bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/20 text-white;
+    @apply bg-white/80 border border-[#8CC63F]/20 rounded-xl px-4 py-2.5 outline-none transition-all focus:border-primary/50 focus:ring-4 focus:ring-primary/10 text-[--color-text] placeholder-[#1A2A24]/30;
   }
 
   .glass-input option {
-    @apply bg-[#1e293b] text-white;
+    @apply bg-white text-[--color-text];
   }
 
   .btn-primary {
-    @apply bg-primary hover:bg-primary-hover text-white font-semibold py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-primary/25 active:scale-[0.98];
+    @apply bg-primary hover:bg-primary-hover text-white font-bold py-2.5 px-6 rounded-xl transition-all shadow-lg shadow-primary/20 active:scale-[0.98] uppercase tracking-wider text-xs;
   }
 
   .text-gradient-primary {

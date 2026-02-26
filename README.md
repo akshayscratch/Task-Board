@@ -1,4 +1,4 @@
-# Simple Task Management Platform
+# WorkMatrix - Professional Task Management Platform
 
 ## Setup
 

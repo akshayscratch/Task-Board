@@ -72,12 +72,12 @@ export default function Login() {
                     <div className="mb-8 relative">
                         <div className="absolute -inset-4 bg-primary/20 rounded-full blur-xl animate-pulse"></div>
                         <div className="w-20 h-20 bg-gradient-to-tr from-primary/20 to-accent/20 rounded-2xl border border-white/10 flex items-center justify-center shadow-2xl relative z-10">
-                            <img src="/app_icon.svg" alt="Taskboard" className="w-12 h-12" />
+                            <img src="/app_icon.svg" alt="WorkMatrix" className="w-12 h-12" />
                         </div>
                     </div>
 
                     <div className="text-center mb-10">
-                        <h2 className="text-4xl font-black text-gradient-primary tracking-tighter mb-2">Task Board</h2>
+                        <h2 className="text-4xl font-black text-gradient-primary tracking-tighter mb-2">WorkMatrix</h2>
                         <p className="text-text-muted font-bold uppercase tracking-[0.2em] text-[10px]">
                             {isSignUp ? 'Create a new account' : 'Sign in to your account'}
                         </p>

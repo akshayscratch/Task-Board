@@ -16,14 +16,55 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [isEditingDescription, setIsEditingDescription] = useState(false)
 
+    const [searchTerm, setSearchTerm] = useState('')
+    const [currentUser, setCurrentUser] = useState(null)
+    const [isSearching, setIsSearching] = useState(false)
+    const [canEditAssignment, setCanEditAssignment] = useState(false)
+
     useEffect(() => {
-        fetchUsers()
+        setupUser()
     }, [])
 
+    const setupUser = async () => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+            setCurrentUser(user)
+            setCanEditAssignment(task.created_by === user.email)
+            fetchUsers() // This will now search or we use it for initial load if needed
+        }
+    }
+
+    const handleSearch = async (term) => {
+        setSearchTerm(term)
+        if (term.length < 2) {
+            setUsers([])
+            return
+        }
+
+        setIsSearching(true)
+        const { data, error } = await supabase
+            .from('users')
+            .select('email, name')
+            .or(`name.ilike.%${term}%,email.ilike.%${term}%`)
+            .limit(5)
+
+        if (error) console.error('Error searching users:', error)
+        else {
+            const usersWithLabel = data?.map(u => ({
+                ...u,
+                name: u.email === currentUser?.email ? `${u.name || u.email} (You)` : (u.name || u.email)
+            })) || []
+            setUsers(usersWithLabel)
+        }
+        setIsSearching(false)
+    }
+
     const fetchUsers = async () => {
-        const { data, error } = await supabase.from('users').select('email, name')
-        if (error) console.error('Error fetching users:', error)
-        else setUsers(data || [])
+        // We only fetch the current assignee initially to show their name
+        const { data, error } = await supabase.from('users').select('email, name').eq('email', task.assigned_to).single()
+        if (data) {
+            setUsers([data])
+        }
     }
 
     const handleUpdate = async () => {
@@ -62,29 +103,29 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
     }
 
     return (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-md overflow-y-auto">
-            <div className={`glass-card flex flex-col md:flex-row h-[85vh] overflow-hidden transition-all duration-500 ease-in-out shadow-[0_0_50px_rgba(99,102,241,0.2)] ${showDetails ? 'w-full max-w-6xl' : 'w-full max-w-2xl'}`}>
+        <div className="fixed inset-0 bg-[#1A2A24]/40 flex items-center justify-center p-4 z-50 backdrop-blur-sm overflow-y-auto">
+            <div className={`glass-card flex flex-col md:flex-row h-[85vh] overflow-hidden transition-all duration-500 ease-in-out shadow-[0_20px_50px_rgba(26,42,36,0.15)] border-[#8CC63F]/20 ${showDetails ? 'max-w-6xl w-full' : 'max-w-2xl w-full'}`}>
 
                 {/* Left side: Task Content - Collapsible */}
-                <div className={`flex flex-col border-r border-white/5 transition-all duration-500 ease-in-out bg-white/[0.01] ${showDetails ? 'flex-[0.45] opacity-100 translate-x-0' : 'w-0 opacity-0 -translate-x-10 pointer-events-none'}`}>
+                <div className={`flex flex-col border-r border-[#8CC63F]/10 transition-all duration-500 ease-in-out bg-white/40 ${showDetails ? 'flex-[0.45] opacity-100 translate-x-0' : 'w-0 opacity-0 -translate-x-10 pointer-events-none'}`}>
 
                     {/* Header Controls */}
-                    <div className="p-8 border-b border-white/5 flex items-center justify-between min-w-[400px]">
+                    <div className="p-8 border-b border-[#8CC63F]/10 flex items-center justify-between min-w-[400px]">
                         <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg ${status === 'Done' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/10 text-primary'}`}>
+                            <div className={`p-2 rounded-lg ${status === 'Done' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-primary/10 text-primary'}`}>
                                 <CheckCircle2 size={24} />
                             </div>
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value)}
-                                className="bg-[#1e293b] border-2 border-white/5 rounded-lg px-3 py-1 text-sm font-black text-white focus:outline-none focus:border-primary/50 uppercase tracking-widest cursor-pointer hover:text-primary transition-colors"
+                                className="bg-white/80 border-2 border-[#8CC63F]/10 rounded-lg px-3 py-1 text-sm font-black text-[#1A2A24] focus:outline-none focus:border-primary/50 uppercase tracking-widest cursor-pointer hover:text-primary transition-colors"
                             >
                                 <option value="To Do">To Do</option>
                                 <option value="In Progress">In Progress</option>
                                 <option value="Done">Done</option>
                             </select>
                         </div>
-                        <button onClick={handleDelete} className="text-red-400/50 hover:text-red-400 p-2 hover:bg-red-400/10 rounded-xl transition-all">
+                        <button onClick={handleDelete} className="text-red-500/50 hover:text-red-500 p-2 hover:bg-red-500/10 rounded-xl transition-all">
                             <Trash2 size={18} />
                         </button>
                     </div>
@@ -94,11 +135,11 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
                         <div className="group relative">
                             <label className="text-[10px] font-black text-primary uppercase tracking-[0.3em] flex items-center justify-between mb-2">
                                 <span className="flex items-center gap-2">
-                                    <ShieldCheck size={14} className="animate-pulse" /> Task Identity
+                                    <ShieldCheck size={14} /> Task Identity
                                 </span>
                                 <button
                                     onClick={() => setIsEditingTitle(!isEditingTitle)}
-                                    className="p-1 hover:bg-white/5 rounded-lg text-text-muted hover:text-primary transition-all"
+                                    className="p-1 hover:bg-[#8CC63F]/5 rounded-lg text-text-muted hover:text-primary transition-all"
                                     title="Edit Title"
                                 >
                                     <Edit2 size={12} />
@@ -111,32 +152,86 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     onBlur={() => setIsEditingTitle(false)}
-                                    className="w-full bg-transparent text-4xl font-black text-white placeholder-white/20 focus:outline-none leading-tight border-b border-white/5 focus:border-primary/30 transition-all pb-2"
+                                    className="w-full bg-transparent text-4xl font-black text-[#1A2A24] placeholder-[#1A2A24]/20 focus:outline-none leading-tight border-b border-[#8CC63F]/20 focus:border-primary/50 transition-all pb-2"
                                     placeholder="Task Title"
                                     autoFocus
                                 />
                             ) : (
-                                <h1 className="text-4xl font-black text-white leading-tight min-h-[50px] cursor-pointer hover:text-primary/90 transition-colors" onClick={() => setIsEditingTitle(true)}>
+                                <h1 className="text-4xl font-black text-[#1A2A24] leading-tight min-h-[50px] cursor-pointer hover:text-primary transition-colors" onClick={() => setIsEditingTitle(true)}>
                                     {title}
                                 </h1>
                             )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-8">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center gap-2">
-                                    <User size={12} strokeWidth={3} className="text-primary" /> Assignee
+                            <div className="space-y-2 relative">
+                                <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] flex items-center justify-between">
+                                    <span className="flex items-center gap-2">
+                                        <User size={12} strokeWidth={3} className="text-primary" /> Assignee
+                                    </span>
+                                    {!canEditAssignment && (
+                                        <span className="text-[8px] font-black text-[#1A2A24]/40 uppercase tracking-widest border border-[#8CC63F]/10 px-2 py-0.5 rounded italic">
+                                            Creator Only
+                                        </span>
+                                    )}
                                 </label>
-                                <select
-                                    value={assignedTo}
-                                    onChange={(e) => setAssignedTo(e.target.value)}
-                                    className="w-full glass-input text-sm font-bold text-white cursor-pointer bg-surface/60"
-                                >
-                                    {users.map(u => (
-                                        <option key={u.email} value={u.email}>{u.name || u.email}</option>
-                                    ))}
-                                    {users.length === 0 && <option value={assignedTo}>{assignedTo}</option>}
-                                </select>
+
+                                {canEditAssignment ? (
+                                    <div className="flex flex-col gap-2">
+                                        <div className="relative group/assignee">
+                                            <input
+                                                type="text"
+                                                value={searchTerm}
+                                                onChange={(e) => handleSearch(e.target.value)}
+                                                className="w-full glass-input text-sm font-bold text-[#1A2A24] placeholder-[#1A2A24]/20 !py-2"
+                                                placeholder={`Current: ${assignedTo}`}
+                                            />
+                                            {isSearching && (
+                                                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                                    <div className="w-3 h-3 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {users.length > 0 && searchTerm && (
+                                            <div className="absolute top-full left-0 right-0 mt-2 glass-card bg-white shadow-2xl z-[60] border border-[#8CC63F]/20 max-h-48 overflow-y-auto overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                                {users.map(u => (
+                                                    <button
+                                                        key={u.email}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setAssignedTo(u.email)
+                                                            setSearchTerm('')
+                                                            setUsers([])
+                                                        }}
+                                                        className="w-full px-4 py-3 text-left hover:bg-[#8CC63F]/5 flex flex-col gap-0.5 border-b border-[#8CC63F]/5 last:border-0 transition-colors group/item"
+                                                    >
+                                                        <span className="text-sm font-bold text-[#1A2A24] group-hover/item:text-primary transition-colors">{u.name || u.email}</span>
+                                                        <span className="text-[10px] text-text-muted font-medium">{u.email}</span>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {!searchTerm && (
+                                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#8CC63F]/5 border border-[#8CC63F]/10 w-fit mt-1">
+                                                <div className="w-4 h-4 rounded bg-primary/20 flex items-center justify-center text-[10px] text-primary font-black">
+                                                    {assignedTo.charAt(0).toUpperCase()}
+                                                </div>
+                                                <span className="text-[10px] font-bold text-primary/80 uppercase tracking-tight truncate max-w-[120px]">
+                                                    {assignedTo === currentUser?.email ? "You" : (users.find(u => u.email === assignedTo)?.name || assignedTo)}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="w-full glass-input text-sm font-bold text-[#1A2A24]/40 bg-white/40 flex items-center gap-2 cursor-not-allowed border-[#8CC63F]/10">
+                                        <div className="w-4 h-4 rounded bg-[#8CC63F]/10 flex items-center justify-center text-[10px] text-[#1A2A24]/40 font-black">
+                                            {assignedTo.charAt(0).toUpperCase()}
+                                        </div>
+                                        {assignedTo === currentUser?.email ? "You" : (users.find(u => u.email === assignedTo)?.name || assignedTo)}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="space-y-2">
@@ -146,7 +241,7 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
                                 <select
                                     value={priority}
                                     onChange={(e) => setPriority(e.target.value)}
-                                    className="w-full glass-input text-sm font-bold text-white cursor-pointer bg-surface/60"
+                                    className="w-full glass-input text-sm font-bold text-[#1A2A24] cursor-pointer bg-white/60"
                                 >
                                     <option value="Low">Low</option>
                                     <option value="Medium">Medium</option>
@@ -162,7 +257,7 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
                                     type="date"
                                     value={dueDate}
                                     onChange={(e) => setDueDate(e.target.value)}
-                                    className="w-full glass-input text-sm font-bold text-white cursor-pointer bg-surface/60"
+                                    className="w-full glass-input text-sm font-bold text-[#1A2A24] cursor-pointer bg-white/60"
                                 />
                             </div>
                         </div>
@@ -174,7 +269,7 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
                                 </span>
                                 <button
                                     onClick={() => setIsEditingDescription(!isEditingDescription)}
-                                    className="p-1 hover:bg-white/5 rounded-lg text-text-muted hover:text-primary transition-all"
+                                    className="p-1 hover:bg-[#8CC63F]/5 rounded-lg text-text-muted hover:text-primary transition-all"
                                     title="Edit Description"
                                 >
                                     <Edit2 size={12} />
@@ -186,26 +281,26 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     onBlur={() => setIsEditingDescription(false)}
-                                    className="w-full glass-input text-sm font-medium text-white leading-relaxed min-h-[180px] resize-none focus:border-primary/30"
+                                    className="w-full glass-input text-sm font-medium text-[#1A2A24] leading-relaxed min-h-[180px] resize-none focus:border-primary/50"
                                     placeholder="Add a more detailed description..."
                                     autoFocus
                                 />
                             ) : (
                                 <div
-                                    className="text-sm font-medium text-white/70 leading-relaxed min-h-[100px] cursor-pointer hover:text-white transition-colors whitespace-pre-wrap"
+                                    className="text-sm font-medium text-[#1A2A24]/70 leading-relaxed min-h-[100px] cursor-pointer hover:text-[#1A2A24] transition-colors whitespace-pre-wrap"
                                     onClick={() => setIsEditingDescription(true)}
                                 >
-                                    {description || <span className="text-white/20 italic">No description provided. Click to add details...</span>}
+                                    {description || <span className="text-[#1A2A24]/20 italic">No description provided. Click to add details...</span>}
                                 </div>
                             )}
                         </div>
                     </div>
 
                     {/* Footer Actions */}
-                    <div className="p-8 border-t border-white/5 flex justify-end gap-3 min-w-[400px]">
+                    <div className="p-8 border-t border-[#8CC63F]/10 flex justify-end gap-3 min-w-[400px]">
                         <button
                             onClick={() => setShowDetails(false)}
-                            className="px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest text-text-muted hover:text-white hover:bg-white/5 transition-all"
+                            className="px-6 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest text-text-muted hover:text-[#1A2A24] hover:bg-[#8CC63F]/5 transition-all"
                         >
                             Collapse
                         </button>
@@ -220,12 +315,12 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
                 </div>
 
                 {/* Right side: Comments - Always visible */}
-                <div className="flex-1 flex flex-col h-full bg-white/[0.02]">
-                    <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02] backdrop-blur-md">
+                <div className="flex-1 flex flex-col h-full bg-white/50">
+                    <div className="p-6 border-b border-[#8CC63F]/10 flex justify-between items-center bg-white/60 backdrop-blur-md">
                         <div className="flex items-center gap-3">
                             <button
                                 onClick={() => setShowDetails(!showDetails)}
-                                className={`p-2 rounded-xl transition-all ${showDetails ? 'bg-primary/20 text-primary' : 'text-text-muted hover:text-white hover:bg-white/5'}`}
+                                className={`p-2 rounded-xl transition-all ${showDetails ? 'bg-primary/20 text-primary' : 'text-text-muted hover:text-[#1A2A24] hover:bg-[#8CC63F]/5'}`}
                                 title={showDetails ? "Hide Details" : "Show Details"}
                             >
                                 <Settings2 size={20} />
@@ -234,11 +329,11 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
 
                         <div className="flex-1 flex flex-col mx-4 overflow-hidden">
                             <div className="flex items-center gap-2 mb-0.5">
-                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.6)]"></div>
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(140,198,63,0.4)]"></div>
                                 <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Activity Feed</h3>
                             </div>
                             <h2
-                                className="text-sm font-black text-white uppercase tracking-wider truncate drop-shadow-[0_0_10px_rgba(59,130,246,0.3)] cursor-pointer hover:text-primary transition-colors"
+                                className="text-sm font-black text-[#1A2A24] uppercase tracking-wider truncate cursor-pointer hover:text-primary transition-colors"
                                 onClick={() => {
                                     setShowDetails(true);
                                     setIsEditingTitle(true);
@@ -248,7 +343,7 @@ export default function TaskDetailsModal({ task, onClose, onTaskUpdated, onTaskD
                             </h2>
                         </div>
 
-                        <button onClick={onClose} className="p-2 text-text-muted hover:text-white hover:bg-white/5 rounded-xl transition-all shrink-0">
+                        <button onClick={onClose} className="p-2 text-text-muted hover:text-[#1A2A24] hover:bg-[#8CC63F]/5 rounded-xl transition-all shrink-0">
                             <X size={20} />
                         </button>
                     </div>
